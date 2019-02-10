@@ -3,7 +3,7 @@ It is a GFS (Grandfather-Father-Son) backup files cleaner.
 
 ## Usage
 
-**Clean old backup files from `backup` folder
+**Clean old backup files from `backup` folder**
 ```bash
 $ gfs-cleaner clean backup
 ```
@@ -13,7 +13,7 @@ Default retentions:
 - 12 monthly backups
 - 10 yearly backups
 
-**Clean old backup files with custom retention values
+**Clean old backup files with custom retention values**
 ```bash
 $ gfs-cleaner clean backup --daily 5 --weekly 2 --monthly 10 --yearly 10
 ```
