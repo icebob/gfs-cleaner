@@ -5,7 +5,8 @@ It is a GFS (Grandfather-Father-Son) backup files cleaner.
 
 **Linux x64**
 ```bash
-sudo wget https://github.com/icebob/gfs-cleaner/releases/download/v0.1.0/gfs-cleaner-0.1.0-linux-amd64 -O /usr/local/bin/gfs-cleaner
+sudo wget https://github.com/icebob/gfs-cleaner/releases/download/v0.1.0/gfs-cleaner_0.1.0_Linux_x86_64.tar.gz
+sudo tar -xvzf gfs-cleaner_0.1.0_Linux_x86_64.tar.gz -C /usr/local/bin/ gfs-cleaner
 sudo chmod +x /usr/local/bin/gfs-cleaner
 ```
 

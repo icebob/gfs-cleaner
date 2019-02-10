@@ -214,7 +214,7 @@ func clean(c *cli.Context) error {
 			fmt.Println("No need to remove backup files.")
 		}
 	} else {
-		fmt.Printf("Dry run. Stay all files.")
+		fmt.Println("Dry run. Stay all files.")
 	}
 
 	return nil
