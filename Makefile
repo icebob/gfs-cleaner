@@ -1,32 +1,29 @@
-# SHELL=C:/Windows/System32/cmd.exe
+NAME=ctop
+VERSION=$(shell cat VERSION)
+GITSHA=$(shell git rev-parse --short HEAD)
 
-# Get the current full sha from git
-GITSHA:=$(shell git rev-parse HEAD)
-
-# Get the current local branch name from git (if we can, this may be blank)
-# GITBRANCH:=$(shell git symbolic-ref --short HEAD)
-
-# BUILD_TIME:=`date +%FT%T%z`
-
-# LDFLAGS for build
-LDFLAGS=-ldflags="-X main.GitCommit=${GITSHA}"
-# LDFLAGS=-ldflags="-X main.GitCommit=${GITSHA} -X main.BuildTime=${BUILD_TIME}"
-
-# Build path style
-BUILD_OUTPUT=-output="releases/{{.OS}}-{{.Arch}}/{{.Dir}}"
-
+EXT_LD_FLAGS="-Wl,--allow-multiple-definition"
+LD_FLAGS="-w -X main.Version=$(VERSION) -X main.GitCommit=${GITSHA} -extldflags=$(EXT_LD_FLAGS)"
 
 default: deps build
 
 deps:
 	go get -t ./...
-	go get github.com/franciscocpg/gox
 
-build: clean
-	@gox -os="windows linux" -arch="386 amd64 arm" ${LDFLAGS} ${BUILD_OUTPUT} .
+build:
+	go mod download
+	CGO_ENABLED=0 go build -tags release -ldflags $(LD_FLAGS) -o ${NAME}
 
 build-all: clean
-	@gox ${LDFLAGS} ${BUILD_OUTPUT} .
+	mkdir -p releases
+	GOOS=darwin  GOARCH=amd64 go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-darwin-amd64
+	GOOS=linux   GOARCH=386   go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-linux-386
+	GOOS=linux   GOARCH=amd64 go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-linux-amd64
+	GOOS=linux   GOARCH=arm   go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-linux-arm
+	GOOS=linux   GOARCH=arm64 go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-linux-arm64
+	GOOS=windows GOARCH=386   go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-windows-386.exe
+	GOOS=windows GOARCH=amd64 go build -tags release -ldflags $(LD_FLAGS) -o releases/${NAME}-$(VERSION)-windows-amd64.exe
+	cd releases; sha256sum * > sha256sums.txt
 
 clean:
 	@rm -rf releases
@@ -35,11 +32,7 @@ install:
 	@go install .
 
 run:
-	@go run ./main.go
+	@go run ./main.go clean test --dry
 
-test: vet
+test:
 	echo "Missing tests"
-
-packing:
-	for f in releases/*/gfs-cleaner; do filename=$$(basename $$(dirname "$$f")); tar -cf "releases/gfs-cleaner-$$filename.tar.gz" -C $$(dirname $$f) $$(basename $$f) ; done; \
-	for f in releases/*/gfs-cleaner.exe; do filename=$$(basename $$(dirname "$$f")); zip -j "releases/gfs-cleaner-$$filename.zip" $$f; done; \

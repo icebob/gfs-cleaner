@@ -16,18 +16,15 @@ import (
 	"github.com/urfave/cli"
 )
 
-// GitCommit contains the commit hash. This will be filled in by the compiler.
-var GitCommit = "dev"
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknow"
+)
 
-// BuildTime contains the time of build
-var BuildTime = "dev"
+var dateRe = regexp.MustCompile("[^0-9]")
 
-// Version is the version of CLI app.
-const Version = "0.2.2"
-
-var DateRe = regexp.MustCompile("[^0-9]")
-
-func FilenameWithoutExtension(fn string) string {
+func filenameWithoutExtension(fn string) string {
 	return strings.TrimSuffix(fn, path.Ext(fn))
 }
 
@@ -35,7 +32,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gfs-cleaner"
 	app.Usage = "GFS Cleaner"
-	app.Version = Version + " (Git: " + GitCommit + ") " // + BuildTime
+	app.Version = fmt.Sprintf("%s (Git: %s) %s", version, commit, date)
 
 	app.Commands = []cli.Command{
 		{
@@ -62,8 +59,29 @@ func main() {
 					Value: 10,
 					Usage: "Number of yearly backups",
 				},
+				cli.BoolFlag{
+					Name:  "dry",
+					Usage: "Dry run (don't remove files/folders)",
+				},
 			},
 			Action: clean,
+		},
+		{
+			Name:  "generate",
+			Usage: "Generate test files.",
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name:  "count, c",
+					Value: 50,
+					Usage: "Number of generated files/folders",
+				},
+				cli.StringFlag{
+					Name:  "mode, m",
+					Value: "files",
+					Usage: "Generate 'files' or 'folders'",
+				},
+			},
+			Action: generate,
 		},
 	}
 
@@ -102,11 +120,12 @@ func clean(c *cli.Context) error {
 			if path == absWorkDir {
 				return nil
 			}
+
+			items = append(items, filepath.Base(path))
+
 			if f.IsDir() {
 				return filepath.SkipDir
 			}
-
-			items = append(items, filepath.Base(path))
 		}
 		return nil
 	})
@@ -134,7 +153,7 @@ func clean(c *cli.Context) error {
 		}*/
 
 		//isDir := stat.IsDir()
-		str := DateRe.ReplaceAllString(item, "")
+		str := dateRe.ReplaceAllString(item, "")
 
 		t, err := time.Parse("20060102", str)
 		if err != nil {
@@ -177,21 +196,46 @@ func clean(c *cli.Context) error {
 	}
 	fmt.Println("")
 
-	if len(removableItems) > 0 {
-		fmt.Println("Cleaning folder...")
-		for _, item := range removableItems {
-			absPath := filepath.Join(absWorkDir, item)
+	if !c.Bool("dry") {
+		if len(removableItems) > 0 {
+			fmt.Println("Cleaning folder...")
+			for _, item := range removableItems {
+				absPath := filepath.Join(absWorkDir, item)
 
-			err := os.RemoveAll(absPath)
-			if err != nil {
-				fmt.Printf("Unable to remove %s file: %q\n", absPath, err)
-				continue
+				err := os.RemoveAll(absPath)
+				if err != nil {
+					fmt.Printf("Unable to remove %s file: %q\n", absPath, err)
+					continue
+				}
+
 			}
-
+			fmt.Printf("Removed %d old backup files.\n", len(removableItems))
+		} else {
+			fmt.Println("No need to remove backup files.")
 		}
-		fmt.Printf("Removed %d old backup files.\n", len(removableItems))
 	} else {
-		fmt.Println("No need to remove backup files.")
+		fmt.Printf("Dry run. Stay all files.")
+	}
+
+	return nil
+}
+
+func generate(c *cli.Context) error {
+	day := time.Now()
+
+	count := c.Int("count")
+	mode := c.String("mode")
+
+	fmt.Printf("Generate %d %s...\n", count, mode)
+	os.Mkdir("test", 0755)
+
+	for i := 0; i < count; i++ {
+		if mode == "folders" {
+			os.MkdirAll(path.Join("test", day.Format("2006-01-02")), 0755)
+		} else {
+			os.Create(path.Join("test", "backup_"+day.Format("2006-01-02")+".zip"))
+		}
+		day = day.Add(-time.Hour * 24)
 	}
 
 	return nil
@@ -202,7 +246,7 @@ func getLastDay(items []string) time.Time {
 	var lastDay time.Time
 
 	for _, item := range items {
-		str := DateRe.ReplaceAllString(item, "")
+		str := dateRe.ReplaceAllString(item, "")
 
 		t, err := time.Parse("20060102", str)
 		if err != nil {

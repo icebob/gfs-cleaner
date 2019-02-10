@@ -1,6 +1,14 @@
 # GFS Cleaner
 It is a GFS (Grandfather-Father-Son) backup files cleaner.
 
+## Install
+
+**Linux x64**
+```bash
+sudo wget https://github.com/icebob/gfs-cleaner/releases/download/v0.1.0/gfs-cleaner-0.1.0-linux-amd64 -O /usr/local/bin/gfs-cleaner
+sudo chmod +x /usr/local/bin/gfs-cleaner
+```
+
 ## Usage
 
 **Clean old backup files from `backup` folder**
