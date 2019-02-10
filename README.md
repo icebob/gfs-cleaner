@@ -7,7 +7,7 @@ It is a GFS (Grandfather-Father-Son) backup files cleaner.
 ```bash
 $ gfs-cleaner clean backup
 ```
-Default retentions: 
+Default retentions:  
 - 7 daily backups
 - 4 weekly backups
 - 12 monthly backups
