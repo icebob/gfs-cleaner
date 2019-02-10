@@ -1,0 +1,20 @@
+language: go
+sudo: false
+go:
+- 1.11
+before_deploy:
+- make build packing
+deploy:
+  provider: releases
+  api_key:
+    secure: oN1W9/TtaPk3vBAdWtXEd0hkIGsdslQM1KVTPpZ7cq7we/FdNzPvbBWYayNr3Sns3TjTuCoPh5hFbbd44upCV1X3qPS6KvLJg0Yy0bZP/tCj2tfHcV5oJasp40hZW+GTG3rhHmMbmD8qMJ1gEYwDd2db9voZ6omHrBhB+TGKmBhFfunPReWfqSZnCHNP78dvSjb4lJeuQafMz7u6J/JL7fbYp9JUQIIYZh3zpojjNKm6C5+jVdrS31J3As9RknRB5gIk6YW+FO1KZtv2hKc9PK5e2VAYAgOysnK0xsS0kC+Ogo74sOCDGStw1khClrKPSBj25R6x2cQojh/dD+PHUxjhHzXMIKJLE15AYe7kJscJi4IjUznnnEbvElChu2WZTXcPdOUIGuzTWB62jbpkvdCwSpWIM3oACby3vrkqDVmYr5+cu6Wn1+9neCrFx+PCtNqY3PQcPWDuweIqtt/gLbG1O15csglRTJtvffkFTHbtVi6+yHNJUdGXA8Cs2IgM9fbaCWVS4AHktpnF52WoCfsbOHnfvjZtRXrLt4sMul9dFD/+aSaIQgd/oGanTdj7EZ0pKW+C09bKR8AgO1PO2euQE7Om8VxdEb+3Nqtd1BiOsBELrpv7/rjJVy7BOpKnSog3NNW2WJ7KEMj5GO60XbmfRV3j6jWWrSlxffE9QEY=
+  file_glob: true
+  file: releases/gfs-cleaner*
+  skip_cleanup: true
+  on:
+    repo: icebob/gfs-cleaner
+    tags: true
+notifications:
+  email:
+    on_success: change
+    on_failure: change
