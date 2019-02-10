@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func main() {
+func main2() {
 	day := time.Now()
 
 	args := os.Args[1:]
