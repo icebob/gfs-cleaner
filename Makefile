@@ -16,7 +16,11 @@ LDFLAGS=-ldflags="-X main.GitCommit=${GITSHA}"
 BUILD_OUTPUT=-output="releases/{{.OS}}-{{.Arch}}/{{.Dir}}"
 
 
-default: build
+default: deps build
+
+deps:
+	go get -t ./...
+	go get github.com/franciscocpg/gox
 
 build: clean
 	@gox -os="windows linux" -arch="386 amd64 arm" ${LDFLAGS} ${BUILD_OUTPUT} .
