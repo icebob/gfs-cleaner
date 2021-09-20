@@ -1,3 +1,5 @@
+# Credits: https://github.com/bcicen/ctop/blob/master/Makefile
+
 NAME=gfs-cleaner
 VERSION=$(shell cat VERSION)
 GITSHA=$(shell git rev-parse --short HEAD)
