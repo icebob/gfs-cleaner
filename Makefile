@@ -1,4 +1,4 @@
-NAME=ctop
+NAME=gfs-cleaner
 VERSION=$(shell cat VERSION)
 GITSHA=$(shell git rev-parse --short HEAD)
 
